@@ -40,6 +40,7 @@ setup(
         "dbt-adapters>=1.7.0,<2.0",
     ],
     extras_require={
+        "iceberg": ["pyiceberg>=0.11.0"],
         "iceberg-gcp": ["pyiceberg[gcp-auth,gcsfs]>=0.11.0"],
         "iceberg-aws": ["pyiceberg[s3fs]>=0.11.0"],
         "iceberg-azure": ["pyiceberg[adlfs]>=0.11.0"],
