@@ -109,6 +109,24 @@
   {% endfor %}
 {% endmacro %}
 
+{% macro risingwave__persist_docs(relation, model, for_relation=true, for_columns=true) -%}
+  {# Apply standard RisingWave SQL comments first so they always succeed. #}
+  {% if for_relation and config.persist_relation_docs() and model.description %}
+    {% do run_query(alter_relation_comment(relation, model.description)) %}
+  {% endif %}
+
+  {% if for_columns and config.persist_column_docs() and model.columns %}
+    {% do run_query(alter_column_comment(relation, model.columns)) %}
+  {% endif %}
+
+  {# Sync docs to Iceberg if the model opts in via config.meta.iceberg: true. #}
+  {# Respects for_relation/for_columns flags; all soft-fail logic is in the Python method. #}
+  {% set _iceberg_meta = (model.get("config") or {}).get("meta") or {} %}
+  {% if _iceberg_meta.get("iceberg") and (for_relation or for_columns) %}
+    {% do adapter.persist_iceberg_docs(relation, model, for_relation, for_columns) %}
+  {% endif %}
+{%- endmacro %}
+
 {% macro risingwave__get_index_name(name, columns) -%}
     {{ return("__dbt_index_{}_{}".format(name, "_".join(columns))) }}
 {% endmacro %}

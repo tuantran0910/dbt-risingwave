@@ -39,6 +39,11 @@ setup(
         "dbt-common>=1.0.4,<2.0",
         "dbt-adapters>=1.7.0,<2.0",
     ],
+    extras_require={
+        "iceberg-gcp": ["pyiceberg[gcp-auth,gcsfs]>=0.11.0"],
+        "iceberg-aws": ["pyiceberg[s3fs]>=0.11.0"],
+        "iceberg-azure": ["pyiceberg[adlfs]>=0.11.0"],
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: Apache Software License",

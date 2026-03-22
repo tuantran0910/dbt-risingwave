@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import psycopg2
 from dbt.adapters.contracts.connection import Connection
@@ -23,6 +23,7 @@ class RisingWaveCredentials(PostgresCredentials):
     streaming_parallelism: Optional[int] = None
     streaming_parallelism_for_backfill: Optional[int] = None
     streaming_max_parallelism: Optional[int] = None
+    iceberg_catalog: Optional[Dict[str, Any]] = None
 
     @property
     def type(self):

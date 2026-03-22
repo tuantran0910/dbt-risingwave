@@ -96,6 +96,51 @@ CREATE INDEX IF NOT EXISTS "__dbt_index_mv_user_id"
 
 Note: RisingWave does not support `unique` or `type` (index method) options from the Postgres adapter. These options are silently ignored.
 
+### Iceberg Documentation Sync
+
+When `persist_docs` is enabled, the adapter can also sync model and column descriptions to a corresponding Iceberg table via [PyIceberg](https://py.iceberg.apache.org/). This is useful for models backed by Iceberg storage (e.g. Iceberg engine tables or sinks writing to an Iceberg catalog).
+
+Install the optional dependency for your storage backend:
+
+```shell
+pip install 'dbt-risingwave[iceberg-gcp]'   # Google Cloud / BigLake
+pip install 'dbt-risingwave[iceberg-aws]'   # AWS / Glue / S3
+pip install 'dbt-risingwave[iceberg-azure]' # Azure / ADLS
+pip install 'dbt-risingwave[iceberg]'       # generic (REST, Hive, SQL catalogs)
+```
+
+Opt in per model by setting `meta.iceberg: true` along with the Iceberg table identity:
+
+```yaml
+models:
+  - name: my_iceberg_model
+    description: "Sales fact table"
+    config:
+      meta:
+        iceberg: true
+        iceberg_namespace: prod_iceberg
+        iceberg_table: sales_facts
+    columns:
+      - name: order_id
+        description: "Unique order identifier"
+```
+
+Configure the Iceberg catalog in your profile:
+
+```yaml
+dev:
+  type: risingwave
+  host: 127.0.0.1
+  ...
+  iceberg_catalog:
+    type: rest
+    uri: http://localhost:8181
+```
+
+Sync is best-effort — if the catalog is unreachable or PyIceberg is not installed, a warning is logged and the run continues normally.
+
+See [docs/configuration.md](docs/configuration.md) for the full reference including per-model catalog overrides and all supported catalog types.
+
 ## Materializations
 
 The adapter follows standard dbt model workflows, with RisingWave-specific materializations and behaviors.
